@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ur-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PSX Market Summary</title>
+<style>
+:root{--bg:#f3f6f5;--card:#fff;--ink:#14201c;--mute:#5d6b66;--line:#d9e2df;--up:#0a7d45;--upbg:#e2f4ea;--dn:#c0332b;--dnbg:#fbe7e5;--acc:#0f4c5c;--accink:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1614;--card:#16211e;--ink:#e6efeb;--mute:#93a39d;--line:#27363256;--up:#41c883;--upbg:#12301f;--dn:#ff7f76;--dnbg:#3a1a18;--acc:#5fc2d6;--accink:#06202a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1614;--card:#16211e;--ink:#e6efeb;--mute:#93a39d;--line:#273632;--up:#41c883;--upbg:#12301f;--dn:#ff7f76;--dnbg:#3a1a18;--acc:#5fc2d6;--accink:#06202a;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:1.5rem;margin:0 0 2px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 16px;font-size:.92rem}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+textarea{width:100%;min-height:130px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:10px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{font:inherit;font-weight:600;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;cursor:pointer}
+button.p{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.hint{font-size:.85rem;color:var(--mute);margin:8px 0 0}
+.err{color:var(--dn);font-weight:600;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-size:1.7rem;line-height:1.1}
+.stat.u{background:var(--upbg);color:var(--up)}.stat.d{background:var(--dnbg);color:var(--dn)}.stat.n{background:var(--bg);color:var(--mute);border:1px solid var(--line)}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin-bottom:12px}
+.bar i{display:block}
+.txt{margin:0;font-size:1rem}
+h2{font-size:1.05rem;margin:0 0 8px}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mute);font-weight:600;font-size:.82rem}
+td.s{font-weight:700}
+.u{color:var(--up)}.d{color:var(--dn)}
+input[type=search]{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin-bottom:8px}
+.two{display:grid;gap:14px}
+@media(min-width:700px){.two{grid-template-columns:1fr 1fr}}
+#out[hidden]{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>PSX market summary</h1>
+<p class="sub">PSX Market Watch ka data paste karein, gainers, losers aur summary foran mil jayegi.</p>
+
+<section class="box">
+<label for="in"><b>Data paste karein</b></label>
+<textarea id="in" spellcheck="false" placeholder="SYMBOL  LDCP  CURRENT  VOLUME&#10;OGDC  120.50  124.10  5400000"></textarea>
+<div class="row">
+<button class="p" id="go">Summary banayein</button>
+<button id="sample">Sample data</button>
+<button id="clear">Saaf karein</button>
+</div>
+<p class="hint">PSX Market Watch se rows copy karke paste karein (tab, comma ya space se alag). Header ho to behtar, warna ye tarteeb: Symbol, Pichhla rate (LDCP), Mojooda rate, Volume (optional).</p>
+<div class="err" id="err" role="alert"></div>
+</section>
+
+<div id="out" hidden>
+<section class="box">
+<div class="stats">
+<div class="stat u"><b id="nu">0</b>Barhi</div>
+<div class="stat d"><b id="nd">0</b>Ghati</div>
+<div class="stat n"><b id="nn">0</b>Barabar</div>
+</div>
+<div class="bar" aria-hidden="true"><i id="bu" style="background:var(--up)"></i><i id="bn" style="background:var(--mute)"></i><i id="bd" style="background:var(--dn)"></i></div>
+<p class="txt" id="sum"></p>
+</section>
+
+<div class="two">
+<section class="box"><h2>Top gainers</h2><div class="wrap"><table id="tg"></table></div></section>
+<section class="box"><h2>Top losers</h2><div class="wrap"><table id="tl"></table></div></section>
+</div>
+
+<section class="box">
+<h2>Tamam companies</h2>
+<input type="search" id="q" placeholder="Symbol talash karein" aria-label="Symbol talash karein">
+<div class="wrap"><table id="ta"></table></div>
+</section>
+</div>
+</main>
+
+<script>
+var SAMPLE="SYMBOL\tLDCP\tCURRENT\tVOLUME\nOGDC\t120.50\t124.10\t5400000\nPPL\t98.20\t96.80\t3100000\nHUBC\t142.00\t147.30\t2200000\nLUCK\t910.00\t902.50\t410000\nENGRO\t305.40\t311.00\t760000\nMEBL\t232.00\t232.00\t1250000\nPSO\t178.60\t171.90\t980000\nFFC\t165.00\t169.40\t1500000\nSYS\t440.00\t433.20\t320000\nTRG\t75.30\t79.90\t8700000";
+var $=function(i){return document.getElementById(i)};
+var rows=[];
+function num(s){var n=parseFloat(String(s).replace(/[,%+]/g,''));return isNaN(n)?null:n}
+function fmt(n,d){return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function parse(t){
+ var lines=t.split(/\r?\n/).map(function(l){return l.trim()}).filter(Boolean),out=[],map=null;
+ lines.forEach(function(l){
+  var p=l.split(/\t|,|\s{2,}|\s+/).filter(function(x){return x!==''});
+  if(!p.length)return;
+  if(num(p[1])===null&&num(p[2])===null){
+   var h=p.map(function(x){return x.toUpperCase()});
+   map={s:0,l:-1,c:-1,v:-1,ch:-1};
+   h.forEach(function(x,i){
+    if(/^(SYMBOL|SCRIP|NAME|COMPANY)$/.test(x))map.s=i;
+    else if(/^(LDCP|PREV|PREVIOUS|LAST)$/.test(x)||x==='CLOSE')map.l=i;
+    else if(/^(CURRENT|PRICE|LTP|RATE)$/.test(x))map.c=i;
+    else if(/^VOL/.test(x))map.v=i;
+    else if(/^CHANGE$/.test(x))map.ch=i;
+   });
+   return;
+  }
+  var m=map&&map.c>=0?map:{s:0,l:1,c:2,v:3,ch:-1};
+  var prev=m.l>=0?num(p[m.l]):null,cur=num(p[m.c]),vol=m.v>=0?num(p[m.v]):null;
+  if(cur===null)return;
+  if(prev===null&&m.ch>=0){var c0=num(p[m.ch]);if(c0!==null)prev=cur-c0}
+  if(prev===null||prev===0)return;
+  out.push({s:p[m.s].toUpperCase(),prev:prev,cur:cur,ch:cur-prev,pct:(cur-prev)/prev*100,vol:vol||0});
+ });
+ return out;
+}
+function tbl(el,list,top){
+ var h='<tr><th>Symbol</th><th>Rate</th><th>Farq</th><th>%</th>'+(top?'':'<th>Volume</th>')+'</tr>';
+ list.forEach(function(r){
+  var c=r.ch>0?'u':r.ch<0?'d':'';
+  h+='<tr><td class="s">'+r.s+'</td><td>'+fmt(r.cur,2)+'</td><td class="'+c+'">'+(r.ch>0?'+':'')+fmt(r.ch,2)+'</td><td class="'+c+'">'+(r.pct>0?'+':'')+fmt(r.pct,2)+'%</td>'+(top?'':'<td>'+fmt(r.vol,0)+'</td>')+'</tr>';
+ });
+ el.innerHTML=h;
+}
+function render(){
+ var q=$('q').value.trim().toUpperCase();
+ tbl($('ta'),rows.filter(function(r){return !q||r.s.indexOf(q)>-1}).sort(function(a,b){return a.s<b.s?-1:1}),false);
+}
+function run(){
+ $('err').textContent='';
+ rows=parse($('in').value);
+ if(rows.length<2){$('out').hidden=true;$('err').textContent='Data samajh nahi aaya. Kam az kam 2 rows chahiye: Symbol, pichhla rate, mojooda rate.';return}
+ var u=rows.filter(function(r){return r.ch>0}),d=rows.filter(function(r){return r.ch<0}),n=rows.length-u.length-d.length;
+ var by=rows.slice().sort(function(a,b){return b.pct-a.pct});
+ var g=by.filter(function(r){return r.ch>0}).slice(0,10),l=by.filter(function(r){return r.ch<0}).reverse().slice(0,10);
+ $('nu').textContent=u.length;$('nd').textContent=d.length;$('nn').textContent=n;
+ var t=rows.length;
+ $('bu').style.width=u.length/t*100+'%';$('bn').style.width=n/t*100+'%';$('bd').style.width=d.length/t*100+'%';
+ var mood=u.length>d.length?'Market musbat (tezi) rahi':u.length<d.length?'Market manfi (mandi) rahi':'Market mutawazin rahi';
+ var s=mood+': '+t+' companies mein se '+u.length+' ke shares barhe, '+d.length+' ke ghate'+(n?' aur '+n+' barabar rahe':'')+'.';
+ if(g.length)s+=' Sab se zyada izafa '+g[0].s+' mein hua ('+(g[0].pct>0?'+':'')+fmt(g[0].pct,2)+'%).';
+ if(l.length)s+=' Sab se zyada kami '+l[0].s+' mein hui ('+fmt(l[0].pct,2)+'%).';
+ var tv=rows.reduce(function(a,r){return a+r.vol},0);
+ if(tv)s+=' Kul volume: '+fmt(tv,0)+' shares.';
+ $('sum').textContent=s;
+ tbl($('tg'),g,true);tbl($('tl'),l,true);render();
+ $('out').hidden=false;
+}
+$('go').onclick=run;
+$('sample').onclick=function(){$('in').value=SAMPLE;run()};
+$('clear').onclick=function(){$('in').value='';$('out').hidden=true;$('err').textContent=''};
+$('q').oninput=render;
+</script>
+</body>
+</html>
